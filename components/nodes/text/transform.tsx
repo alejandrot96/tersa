@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import type { ChangeEventHandler, ComponentProps } from 'react';
+import { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { mutate } from 'swr';
@@ -141,6 +142,20 @@ export const TextTransform = ({
     navigator.clipboard.writeText(text);
     toast.success('Copied to clipboard');
   };
+
+  // Listen for global generate event
+  useEffect(() => {
+    const handleGenerateEvent = (event: CustomEvent) => {
+      if (event.detail.nodeId === id) {
+        handleGenerate();
+      }
+    };
+
+    window.addEventListener('generate-node', handleGenerateEvent as EventListener);
+    return () => {
+      window.removeEventListener('generate-node', handleGenerateEvent as EventListener);
+    };
+  }, [id, handleGenerate]);
 
   const createToolbar = (): ComponentProps<typeof NodeLayout>['toolbar'] => {
     const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [];

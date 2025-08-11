@@ -315,6 +315,26 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
     }
   }, [getNodes, duplicateNode]);
 
+  const handleGenerateAll = useCallback(() => {
+    const transformNodes = getNodes().filter(
+      (node) => node.data?.source === 'transform'
+    );
+
+    // Dispatch custom event to trigger generation on all transform nodes
+    transformNodes.forEach((node) => {
+      const event = new CustomEvent('generate-node', {
+        detail: { nodeId: node.id },
+      });
+      window.dispatchEvent(event);
+    });
+
+    if (transformNodes.length > 0) {
+      analytics.track('canvas', 'shortcut', 'generate-all', {
+        nodeCount: transformNodes.length,
+      });
+    }
+  }, [getNodes, analytics]);
+
   useHotkeys('meta+a', handleSelectAll, {
     enableOnContentEditable: false,
     preventDefault: true,
@@ -331,6 +351,11 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
   });
 
   useHotkeys('meta+v', handlePaste, {
+    enableOnContentEditable: false,
+    preventDefault: true,
+  });
+
+  useHotkeys('meta+enter', handleGenerateAll, {
     enableOnContentEditable: false,
     preventDefault: true,
   });

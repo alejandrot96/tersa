@@ -21,7 +21,7 @@ import {
   RotateCcwIcon,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { type ChangeEventHandler, type ComponentProps, useState } from 'react';
+import { type ChangeEventHandler, type ComponentProps, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { mutate } from 'swr';
 import type { AudioNodeProps } from '.';
@@ -213,6 +213,20 @@ export const AudioTransform = ({
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
+
+  // Listen for global generate event
+  useEffect(() => {
+    const handleGenerateEvent = (event: CustomEvent) => {
+      if (event.detail.nodeId === id) {
+        handleGenerate();
+      }
+    };
+
+    window.addEventListener('generate-node', handleGenerateEvent as EventListener);
+    return () => {
+      window.removeEventListener('generate-node', handleGenerateEvent as EventListener);
+    };
+  }, [id, handleGenerate]);
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>

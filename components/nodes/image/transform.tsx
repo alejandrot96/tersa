@@ -23,6 +23,7 @@ import {
   type ChangeEventHandler,
   type ComponentProps,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -150,6 +151,20 @@ export const ImageTransform = ({
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
+
+  // Listen for global generate event
+  useEffect(() => {
+    const handleGenerateEvent = (event: CustomEvent) => {
+      if (event.detail.nodeId === id) {
+        handleGenerate();
+      }
+    };
+
+    window.addEventListener('generate-node', handleGenerateEvent as EventListener);
+    return () => {
+      window.removeEventListener('generate-node', handleGenerateEvent as EventListener);
+    };
+  }, [id, handleGenerate]);
 
   const toolbar = useMemo<ComponentProps<typeof NodeLayout>['toolbar']>(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [

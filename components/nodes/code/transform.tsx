@@ -19,6 +19,7 @@ import {
   type ChangeEventHandler,
   type ComponentProps,
   useCallback,
+  useEffect,
   useMemo,
 } from 'react';
 import { toast } from 'sonner';
@@ -136,6 +137,20 @@ export const CodeTransform = ({
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
+
+  // Listen for global generate event
+  useEffect(() => {
+    const handleGenerateEvent = (event: CustomEvent) => {
+      if (event.detail.nodeId === id) {
+        handleGenerate();
+      }
+    };
+
+    window.addEventListener('generate-node', handleGenerateEvent as EventListener);
+    return () => {
+      window.removeEventListener('generate-node', handleGenerateEvent as EventListener);
+    };
+  }, [id, handleGenerate]);
 
   const handleCodeChange = (value: string | undefined) => {
     updateNodeData(id, {
