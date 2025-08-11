@@ -57,7 +57,7 @@ export const generateSpeechAction = async ({
     // Credits disabled in debug
 
     // Storage disabled in debug; inline data URL
-    const url = `data:${audio.mimeType};base64,${Buffer.from(audio.uint8Array).toString('base64')}`;
+    const url = `data:${audio.mediaType};base64,${Buffer.from(audio.uint8Array).toString('base64')}`;
 
     const allProjects = await database
       .select()
@@ -86,7 +86,7 @@ export const generateSpeechAction = async ({
       updatedAt: new Date().toISOString(),
       generated: {
         url,
-        type: audio.mimeType,
+        type: audio.mediaType,
       },
     };
 

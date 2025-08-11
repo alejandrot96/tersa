@@ -64,7 +64,7 @@ const generateGptImage1Image = async ({
   const image: Experimental_GenerateImageResult['image'] = {
     base64: json,
     uint8Array: Buffer.from(json, 'base64'),
-    mimeType: 'image/png',
+    mediaType: 'image/png',
   };
 
   return {
@@ -135,7 +135,7 @@ export const generateImageAction = async ({
       image = generatedImageResponse.image;
     }
 
-    let extension = image.mimeType.split('/').pop();
+    let extension = image.mediaType.split('/').pop();
 
     if (extension === 'jpeg') {
       extension = 'jpg';
@@ -144,11 +144,11 @@ export const generateImageAction = async ({
     const name = `${nanoid()}.${extension}`;
 
     const file: File = new File([image.uint8Array], name, {
-      type: image.mimeType,
+      type: image.mediaType,
     });
 
     // Storage disabled in debug; inline data URL
-    const url = `data:${image.mimeType};base64,${Buffer.from(image.uint8Array).toString('base64')}`;
+    const url = `data:${image.mediaType};base64,${Buffer.from(image.uint8Array).toString('base64')}`;
 
     const allProjects = await database
       .select()
@@ -210,7 +210,7 @@ export const generateImageAction = async ({
       updatedAt: new Date().toISOString(),
       generated: {
         url,
-        type: image.mimeType,
+        type: image.mediaType,
       },
       description,
     };

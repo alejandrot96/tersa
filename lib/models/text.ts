@@ -6,7 +6,7 @@ import { mistral } from '@ai-sdk/mistral';
 import { openai } from '@ai-sdk/openai';
 import { xai } from '@ai-sdk/xai';
 
-import type { LanguageModelV1 } from 'ai';
+import type { LanguageModel } from 'ai';
 import {
   AnthropicIcon,
   DeepSeekIcon,
@@ -28,7 +28,7 @@ export const textModels: {
     icon: typeof OpenAiIcon;
     id: string;
     label: string;
-    model: LanguageModelV1;
+    model: LanguageModel;
     getCost: ({ input, output }: { input: number; output: number }) => number;
     legacy?: boolean;
     priceIndicator?: PriceBracket;
