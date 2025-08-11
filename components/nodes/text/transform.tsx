@@ -14,7 +14,13 @@ import {
 } from '@/lib/xyflow';
 import { useChat } from '@ai-sdk/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { ClockIcon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
+import {
+  ClockIcon,
+  CopyIcon,
+  PlayIcon,
+  RotateCcwIcon,
+  SquareIcon,
+} from 'lucide-react';
 import { useParams } from 'next/navigation';
 import type { ChangeEventHandler, ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -131,6 +137,11 @@ export const TextTransform = ({
     event
   ) => updateNodeData(id, { instructions: event.target.value });
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  };
+
   const createToolbar = (): ComponentProps<typeof NodeLayout>['toolbar'] => {
     const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [];
 
@@ -161,6 +172,13 @@ export const TextTransform = ({
         ),
       });
     } else if (messages.length || data.generated?.text) {
+      const text = messages.length
+        ? messages
+            .filter((message) => message.role === 'assistant')
+            .map((message) => message.content)
+            .join('\n')
+        : data.generated?.text;
+
       toolbar.push({
         tooltip: 'Regenerate',
         children: (
@@ -171,6 +189,20 @@ export const TextTransform = ({
             disabled={!projectId}
           >
             <RotateCcwIcon size={12} />
+          </Button>
+        ),
+      });
+      toolbar.push({
+        tooltip: 'Copy',
+        children: (
+          <Button
+            size="icon"
+            className="rounded-full"
+            disabled={!text}
+            onClick={() => handleCopy(text ?? '')}
+            variant="ghost"
+          >
+            <CopyIcon size={12} />
           </Button>
         ),
       });
