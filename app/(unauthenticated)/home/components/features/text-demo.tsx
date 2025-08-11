@@ -84,6 +84,7 @@ export const TextDemo = () => (
       transcriptionModel: 'gpt-4o-mini-transcribe',
       visionModel: 'gpt-4.1-nano',
       systemPrompt: null,
+      accentColor: 'emerald',
       updatedAt: null,
       image: null,
       content: {

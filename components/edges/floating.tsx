@@ -14,10 +14,10 @@ const getEdgeParams = (source: InternalNode<Node>, target: InternalNode<Node>) =
   const targetPos = Position.Left;
   
   // Use existing handle positioning logic but make it more flexible
-  const sourceX = source.internals.positionAbsolute.x + source.internals.width;
-  const sourceY = source.internals.positionAbsolute.y + source.internals.height / 2;
+  const sourceX = source.internals.positionAbsolute.x + (source.measured?.width ?? 0);
+  const sourceY = source.internals.positionAbsolute.y + (source.measured?.height ?? 0) / 2;
   const targetX = target.internals.positionAbsolute.x;
-  const targetY = target.internals.positionAbsolute.y + target.internals.height / 2;
+  const targetY = target.internals.positionAbsolute.y + (target.measured?.height ?? 0) / 2;
 
   return {
     sx: sourceX,
