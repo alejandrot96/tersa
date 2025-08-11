@@ -6,6 +6,7 @@ export const projects = pgTable('project', {
   transcriptionModel: varchar('transcription_model').notNull(),
   visionModel: varchar('vision_model').notNull(),
   systemPrompt: text('system_prompt'),
+  accentColor: varchar('accent_color').default('emerald'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at'),
   content: json('content'),

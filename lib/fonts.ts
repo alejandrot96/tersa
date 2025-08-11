@@ -1,14 +1,15 @@
-import { Cormorant_Upright, Geist, Geist_Mono } from 'next/font/google';
+import { Cormorant_Upright, IBM_Plex_Mono, Outfit } from 'next/font/google';
 
-export const sans = Geist({
+export const sans = Outfit({
   variable: '--font-sans',
   subsets: ['latin'],
   display: 'swap',
 });
 
-export const mono = Geist_Mono({
+export const mono = IBM_Plex_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
   display: 'swap',
 });
 

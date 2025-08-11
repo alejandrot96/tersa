@@ -59,7 +59,13 @@ export type CanvasProps = {
 export const Canvas = ({ data, canvasProps }: CanvasProps) => {
   const content = data.content as ProjectData['content'];
   const [nodes, setNodes] = useState<Node[]>(content?.nodes ?? []);
-  const [edges, setEdges] = useState<Edge[]>(content?.edges ?? []);
+  const [edges, setEdges] = useState<Edge[]>(
+    // TODO: Convert animated edges to floating once floating edges are working properly
+    // (content?.edges ?? []).map((edge) =>
+    //   edge.type === 'animated' ? { ...edge, type: 'floating' } : edge
+    // )
+    content?.edges ?? []
+  );
   const [copiedNodes, setCopiedNodes] = useState<Node[]>([]);
   const { getEdges, screenToFlowPosition, getNodes, getNode, updateNode } =
     useReactFlow();
@@ -315,22 +321,40 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
     }
   }, [getNodes, duplicateNode]);
 
-  const handleGenerateAll = useCallback(() => {
-    const transformNodes = getNodes().filter(
-      (node) => node.data?.source === 'transform'
+  const handleGenerate = useCallback(() => {
+    // Get the currently selected nodes
+    const selectedNodes = getNodes().filter(
+      (node) => node.selected && node.data?.source === 'transform'
     );
 
-    // Dispatch custom event to trigger generation on all transform nodes
-    transformNodes.forEach((node) => {
+    // If no nodes are selected, try to find the focused transform node
+    let nodesToGenerate = selectedNodes;
+    if (nodesToGenerate.length === 0) {
+      // Check if we're focused on a transform node by looking for active element
+      const activeElement = document.activeElement;
+      if (activeElement) {
+        const nodeElement = activeElement.closest('[data-id]');
+        if (nodeElement) {
+          const nodeId = nodeElement.getAttribute('data-id');
+          const node = getNodes().find(n => n.id === nodeId);
+          if (node && node.data?.source === 'transform') {
+            nodesToGenerate = [node];
+          }
+        }
+      }
+    }
+
+    // Dispatch custom event to trigger generation on target nodes
+    nodesToGenerate.forEach((node) => {
       const event = new CustomEvent('generate-node', {
         detail: { nodeId: node.id },
       });
       window.dispatchEvent(event);
     });
 
-    if (transformNodes.length > 0) {
-      analytics.track('canvas', 'shortcut', 'generate-all', {
-        nodeCount: transformNodes.length,
+    if (nodesToGenerate.length > 0) {
+      analytics.track('canvas', 'shortcut', 'generate', {
+        nodeCount: nodesToGenerate.length,
       });
     }
   }, [getNodes, analytics]);
@@ -355,8 +379,9 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
     preventDefault: true,
   });
 
-  useHotkeys('meta+enter', handleGenerateAll, {
+  useHotkeys('meta+enter', handleGenerate, {
     enableOnContentEditable: false,
+    enableOnFormTags: true,
     preventDefault: true,
   });
 

@@ -61,6 +61,7 @@ export const TextTransform = ({
       modelId,
       projectId,
     },
+    streamProtocol: 'text',
     onError: (error) => handleError('Error generating text', error),
     onFinish: (message) => {
       updateNodeData(id, {

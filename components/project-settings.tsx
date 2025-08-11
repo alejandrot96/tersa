@@ -18,9 +18,11 @@ import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
+import { ColorSelector } from './ui/color-selector';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
+import type { ColorKey } from '@/lib/colors';
 
 type ProjectSettingsProps = {
   data: typeof projects.$inferSelect;
@@ -31,6 +33,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [name, setName] = useState(data.name);
   const [systemPrompt, setSystemPrompt] = useState(data.systemPrompt || '');
+  const [accentColor, setAccentColor] = useState<ColorKey>((data.accentColor as ColorKey) || 'emerald');
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
@@ -49,6 +52,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
       const response = await updateProjectAction(data.id, {
         name,
         systemPrompt,
+        accentColor,
       });
 
       if ('error' in response) {
@@ -105,6 +109,17 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
               value={name}
               onChange={({ target }) => setName(target.value)}
             />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="accentColor">Accent Color</Label>
+            <ColorSelector 
+              value={accentColor} 
+              onChange={setAccentColor}
+              className="mt-1"
+            />
+            <p className="text-xs text-muted-foreground">
+              Choose your project's accent color theme.
+            </p>
           </div>
           <div className="grid gap-2">
             <div className="flex items-center justify-between">

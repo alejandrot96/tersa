@@ -8,6 +8,13 @@
       "when": 1754887142290,
       "tag": "0000_fluffy_lucky_pierre",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1754944042276,
+      "tag": "0001_wakeful_lady_deathstrike",
+      "breakpoints": true
     }
   ]
 }

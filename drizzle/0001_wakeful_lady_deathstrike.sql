@@ -1,0 +1,1 @@
+ALTER TABLE "project" ADD COLUMN "accent_color" varchar DEFAULT 'emerald';

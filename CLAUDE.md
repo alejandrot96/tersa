@@ -67,8 +67,15 @@ Tersa is a visual AI workflow builder built with Next.js, React, and Supabase. I
 ## Database Schema
 
 Primary tables in Supabase:
-- `project`: Stores workflow projects with their nodes and edges
+- `project`: Stores workflow projects with their nodes and edges, and custom accent colors
 - `profile`: User profile data with subscription information
+
+### Project Customization
+
+Each project now supports:
+- **Custom Accent Colors**: Choose from 15 Tailwind colors (red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose)
+- **System Prompts**: Custom instructions for AI generation
+- **Font Configuration**: Outfit (sans-serif) and IBM Plex Mono (monospace)
 
 ## Keyboard Shortcuts
 
@@ -78,22 +85,54 @@ The canvas supports several keyboard shortcuts for improved workflow efficiency:
 - **`Cmd+D` (Ctrl+D on Windows/Linux)**: Duplicate selected nodes
 - **`Cmd+C` (Ctrl+C on Windows/Linux)**: Copy selected nodes
 - **`Cmd+V` (Ctrl+V on Windows/Linux)**: Paste copied nodes
-- **`Cmd+Enter` (Ctrl+Enter on Windows/Linux)**: Generate content on all transform nodes
-- **`Backspace` / `Delete`**: Delete selected nodes or edges
+- **`Cmd+Enter` (Ctrl+Enter on Windows/Linux)**: Generate content on selected/focused transform nodes
+- **`Backspace` / `Delete`**: Delete selected nodes or edges (connections)
 
-### Generate All Shortcut
+### Enhanced Shortcuts
 
-The `Cmd+Enter` shortcut is particularly useful for triggering content generation across multiple nodes simultaneously:
-- Only affects transform nodes (nodes with `data.source === 'transform'`)
+**Generate Shortcut (`Cmd+Enter`):**
+- Intelligently targets selected transform nodes or the currently focused node
+- Only affects transform nodes (nodes with `data.source === 'transform'`)  
 - Primitive nodes (input nodes) are not affected
+- Works inside input fields with `enableOnFormTags: true`
 - Uses a custom DOM event system for clean node communication
 - Includes analytics tracking for usage insights
+
+**Edge Management:**
+- **Click on connections**: Select edge connections between nodes
+- **Delete connections**: Use `Backspace`/`Delete` to disconnect nodes
+- **Visual feedback**: Selected edges highlight in the project's accent color
+- **Hover effects**: Connections show interactive states
+
+### Development Features
+
+**Node Data Inspector** (Development mode only):
+- **Right-click** any node → **"Show data"** to view internal node data
+- **Scrollable JSON**: Horizontal and vertical scroll support for large data
+- **Debug information**: View all node properties and generated content
 
 ## Key Files
 
 - `components/canvas/canvas.tsx`: Main canvas implementation with keyboard shortcuts
-- `components/nodes/`: Node implementations for different content types
+- `components/nodes/`: Node implementations for different content types  
+- `components/edges/`: Edge implementations (animated, floating, temporary)
+- `components/project-settings.tsx`: Project configuration with color picker
+- `components/project-color-provider.tsx`: Dynamic accent color system
 - `providers/project.tsx`: Project context provider
 - `lib/database.ts`: Database connection and utilities
 - `lib/auth.ts`: Authentication utilities
+- `lib/colors.ts`: Tailwind color definitions and utilities
+- `lib/fonts.ts`: Font configuration (Outfit, IBM Plex Mono)
 - `schema.ts`: Database schema definitions using Drizzle ORM
+
+## Configuration
+
+### Server Actions
+- **Body size limit**: 50MB (configured in `next.config.ts`)
+- **Large project support**: Handles complex workflows with many nodes
+- **Auto-save**: Canvas changes automatically saved to database
+
+### Typography
+- **Default font**: Outfit (Google Fonts)
+- **Monospace font**: IBM Plex Mono (Google Fonts)
+- **Self-hosted**: Fonts optimized and served from application domain

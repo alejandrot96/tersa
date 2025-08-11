@@ -179,9 +179,11 @@ export const NodeLayout = ({
               </code>
             </DialogDescription>
           </DialogHeader>
-          <pre className="rounded-lg bg-black p-4 text-sm text-white">
-            {JSON.stringify(data, null, 2)}
-          </pre>
+          <div className="max-h-96 overflow-auto rounded-lg bg-black p-4">
+            <pre className="text-sm text-white overflow-x-auto whitespace-pre-wrap">
+              {JSON.stringify(data, null, 2)}
+            </pre>
+          </div>
         </DialogContent>
       </Dialog>
     </>

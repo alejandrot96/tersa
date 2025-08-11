@@ -19,6 +19,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
         sans.variable,
         serif.variable,
         mono.variable,
+        sans.className,
         'bg-background text-foreground antialiased'
       )}
     >
