@@ -1,10 +1,8 @@
 import { env } from '@/lib/env';
 import type { videoModels } from '@/lib/models/video';
-import { LumaAI } from 'lumaai';
+// import { LumaAI } from 'lumaai';
 
-const luma = new LumaAI({
-  authToken: env.LUMAAI_API_KEY,
-});
+const luma: any = null;
 
 type GenerateVideoProps = {
   model: (typeof videoModels)[number]['models'][number];

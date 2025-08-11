@@ -10,6 +10,7 @@ export const visionModels = [
         id: 'openai-gpt-4.1',
         label: 'GPT-4.1',
         model: openai('gpt-4.1'),
+        default: true,
       },
       {
         icon: OpenAiIcon,
@@ -22,7 +23,6 @@ export const visionModels = [
         id: 'openai-gpt-4.1-nano',
         label: 'GPT-4.1 Nano',
         model: openai('gpt-4.1-nano'),
-        default: true,
       },
       {
         icon: OpenAiIcon,

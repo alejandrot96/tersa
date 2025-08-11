@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/hooks/use-user';
-import { createClient } from '@/lib/supabase/client';
+// //import { createClient } from '@/lib/supabase/client';
 import { useSubscription } from '@/providers/subscription';
 import {
   ArrowUpRight,
@@ -32,8 +32,6 @@ export const Menu = () => {
   const { isSubscribed } = useSubscription();
 
   const logout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
     router.push('/auth/login');
   };
 

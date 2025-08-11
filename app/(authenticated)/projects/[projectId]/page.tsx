@@ -1,18 +1,14 @@
 import { Canvas } from '@/components/canvas';
 import { TopLeft } from '@/components/top-left';
 import { TopRight } from '@/components/top-right';
-import { currentUser, currentUserProfile } from '@/lib/auth';
 import { database } from '@/lib/database';
-import { env } from '@/lib/env';
+import { getFeatureFlags } from '@/lib/features';
+import { FeatureFlagsProvider } from '@/providers/feature-flags';
 import { ProjectProvider } from '@/providers/project';
-import {
-  type SubscriptionContextType,
-  SubscriptionProvider,
-} from '@/providers/subscription';
 import { projects } from '@/schema';
 import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
@@ -29,58 +25,32 @@ type ProjectProps = {
 };
 
 const Project = async ({ params }: ProjectProps) => {
-  const user = await currentUser();
   const { projectId } = await params;
 
-  if (!user) {
-    return redirect('/sign-in');
-  }
+  const [projectResults, featureFlags] = await Promise.all([
+    database.select().from(projects).where(eq(projects.id, projectId)),
+    getFeatureFlags(),
+  ]);
 
-  const profile = await currentUserProfile();
-
-  if (!profile) {
-    return null;
-  }
-
-  const allProjects = await database
-    .select()
-    .from(projects)
-    .where(eq(projects.userId, user.id));
-
-  if (!allProjects.length) {
-    notFound();
-  }
-
-  const project = allProjects.find((project) => project.id === projectId);
+  const project = projectResults[0];
 
   if (!project) {
     notFound();
   }
 
-  let plan: SubscriptionContextType['plan'];
-
-  if (profile.subscriptionId === env.STRIPE_HOBBY_PRODUCT_ID) {
-    plan = 'hobby';
-  } else if (profile.subscriptionId === env.STRIPE_PRO_PRODUCT_ID) {
-    plan = 'pro';
-  }
-
   return (
     <div className="h-screen w-screen">
-      <ProjectProvider data={project}>
-        <SubscriptionProvider
-          isSubscribed={Boolean(profile.subscriptionId)}
-          plan={plan}
-        >
+      <FeatureFlagsProvider features={featureFlags}>
+        <ProjectProvider data={project}>
           <Canvas data={project} />
-        </SubscriptionProvider>
-      </ProjectProvider>
-      <Suspense fallback={null}>
-        <TopLeft id={projectId} />
-      </Suspense>
-      <Suspense fallback={null}>
-        <TopRight id={projectId} />
-      </Suspense>
+        </ProjectProvider>
+        <Suspense fallback={null}>
+          <TopLeft id={projectId} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <TopRight id={projectId} />
+        </Suspense>
+      </FeatureFlagsProvider>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { env } from '@/lib/env';
 import { handleError } from '@/lib/error/handle';
-import { createClient } from '@/lib/supabase/client';
+//import { createClient } from '@/lib/supabase/client';
 import { Turnstile } from '@marsidev/react-turnstile';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -22,21 +22,13 @@ export const LoginForm = () => {
 
   const handleEmailLogin: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const supabase = createClient();
+    // Auth disabled in debug build
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-        options: {
-          captchaToken,
-        },
-      });
-      if (error) {
-        throw error;
-      }
-
+      // Simulate login for debug build
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Update this route to redirect to an authenticated route. The user already has an active session.
       router.push('/');
     } catch (error: unknown) {
@@ -86,7 +78,7 @@ export const LoginForm = () => {
         </div>
       </form>
       <div className="mt-4">
-        {process.env.NODE_ENV === 'production' ? (
+        {process.env.NODE_ENV === 'production' && env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
           <Turnstile
             siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             onSuccess={setCaptchaToken}

@@ -108,7 +108,6 @@ export const textModels: {
         id: 'openai-gpt-4o',
         label: 'GPT-4o',
         model: openai('gpt-4o'),
-        default: true,
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2.5;
           const outputCost = (output / million) * 10;
@@ -410,6 +409,19 @@ export const textModels: {
     models: [
       {
         icon: GoogleIcon,
+        id: 'google-gemini-2.5-flash',
+        label: 'Gemini 2.5 Flash',
+        model: google('gemini-2.5-flash'),
+        priceIndicator: 'lowest',
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.05;
+          const outputCost = (output / million) * 0.15;
+
+          return inputCost + outputCost;
+        },
+      },
+      {
+        icon: GoogleIcon,
         id: 'google-gemini-2.0-flash',
         label: 'Gemini 2.0 Flash',
         model: google('gemini-2.0-flash-001'),
@@ -514,6 +526,20 @@ export const textModels: {
   {
     label: 'Groq',
     models: [
+      {
+        icon: GroqIcon,
+        id: 'groq-moonshotai/kimi-k2-instruct',
+        label: 'Moonshot AI Kimi K2',
+        model: groq('moonshotai/kimi-k2-instruct'),
+        default: true,
+        priceIndicator: 'lowest',
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.1;
+          const outputCost = (output / million) * 0.1;
+
+          return inputCost + outputCost;
+        },
+      },
       {
         icon: GroqIcon,
         id: 'groq-meta-llama/llama-4-scout-17b-16e-instruct',

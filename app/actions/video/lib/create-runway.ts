@@ -1,5 +1,5 @@
 import type { videoModels } from '@/lib/models/video';
-import RunwayML from '@runwayml/sdk';
+// import RunwayML from '@runwayml/sdk';
 
 type GenerateVideoProps = {
   model: (typeof videoModels)[number]['models'][number];
@@ -7,7 +7,7 @@ type GenerateVideoProps = {
   image?: string;
 };
 
-const client = new RunwayML();
+const client: any = null;
 
 export const generateRunwayVideo = async ({
   model,

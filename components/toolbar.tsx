@@ -1,3 +1,4 @@
+import { useFeatureFlags } from '@/providers/feature-flags';
 import { useNodeOperations } from '@/providers/node-operations';
 import { Panel, useReactFlow } from '@xyflow/react';
 import {
@@ -15,6 +16,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 export const ToolbarInner = () => {
   const { getViewport } = useReactFlow();
   const { addNode } = useNodeOperations();
+  const { features } = useFeatureFlags();
 
   const handleAddNode = (type: string, options?: Record<string, unknown>) => {
     // Get the current viewport
@@ -58,12 +60,12 @@ export const ToolbarInner = () => {
       icon: AudioWaveformIcon,
       onClick: () => handleAddNode('audio'),
     },
-    {
+    ...(features.videoEnabled ? [{
       id: 'video',
       label: 'Video',
       icon: VideoIcon,
       onClick: () => handleAddNode('video'),
-    },
+    }] : []),
     {
       id: 'code',
       label: 'Code',

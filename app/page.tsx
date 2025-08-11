@@ -1,11 +1,7 @@
-import { currentUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { projects } from '@/schema';
-import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Home from './(unauthenticated)/home/page';
-import UnauthenticatedLayout from './(unauthenticated)/layout';
 import { createProjectAction } from './actions/project/create';
 
 export const metadata: Metadata = {
@@ -14,20 +10,7 @@ export const metadata: Metadata = {
 };
 
 const Index = async () => {
-  const user = await currentUser();
-
-  if (!user) {
-    return (
-      <UnauthenticatedLayout>
-        <Home />
-      </UnauthenticatedLayout>
-    );
-  }
-
-  const allProjects = await database
-    .select()
-    .from(projects)
-    .where(eq(projects.userId, user.id));
+  const allProjects = await database.select().from(projects);
 
   if (!allProjects.length) {
     const newProject = await createProjectAction('Untitled Project');

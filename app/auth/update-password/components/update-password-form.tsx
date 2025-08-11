@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { handleError } from '@/lib/error/handle';
-import { createClient } from '@/lib/supabase/client';
+//import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
 
@@ -17,17 +17,14 @@ export const UpdatePasswordForm = () => {
   const handleForgotPassword: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    const supabase = createClient();
+    // Auth disabled in debug build
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-
-      if (error) {
-        throw error;
-      }
+      // Simulate password update for debug build
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       router.push('/');
     } catch (error: unknown) {

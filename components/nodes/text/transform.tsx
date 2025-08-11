@@ -52,6 +52,7 @@ export const TextTransform = ({
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
       modelId,
+      projectId,
     },
     onError: (error) => handleError('Error generating text', error),
     onFinish: (message) => {

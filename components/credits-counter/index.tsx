@@ -14,7 +14,9 @@ export const CreditsCounter = async () => {
   return (
     <CreditsClient
       defaultCredits={credits.credits}
-      canUpgrade={profile?.productId !== env.STRIPE_PRO_PRODUCT_ID}
+      canUpgrade={profile && typeof profile === 'object' && 'productId' in profile 
+        ? (profile as { productId: string }).productId !== process.env.STRIPE_PRO_PRODUCT_ID
+        : true}
     />
   );
 };

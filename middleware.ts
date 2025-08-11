@@ -1,8 +1,7 @@
-import { updateSession } from '@/lib/supabase/middleware';
-import type { NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  return NextResponse.next();
 }
 
 export const config = {
@@ -12,9 +11,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - api/webhooks/ (webhook endpoints)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/webhooks/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp3|mp4)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp3|mp4)$).*)',
   ],
 };

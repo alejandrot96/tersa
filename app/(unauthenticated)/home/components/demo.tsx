@@ -10,9 +10,9 @@ export const Demo = () => (
             createdAt: new Date(),
             id: 'demo',
             name: 'Demo Project',
-            userId: 'test',
             transcriptionModel: 'gpt-4o-mini-transcribe',
             visionModel: 'gpt-4.1-nano',
+            systemPrompt: null,
             updatedAt: null,
             image: null,
             content: {
@@ -20,7 +20,6 @@ export const Demo = () => (
               edges: sampleEdges,
               viewport: sampleViewport,
             },
-            members: [],
           }}
           canvasProps={{
             panOnScroll: false,

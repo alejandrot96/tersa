@@ -3,32 +3,23 @@
 import { Button } from '@/components/ui/button';
 import { handleError } from '@/lib/error/handle';
 import { socialProviders } from '@/lib/social';
-import { createClient } from '@/lib/supabase/client';
-import type { Provider } from '@supabase/supabase-js';
+////import { createClient } from '@/lib/supabase/client';
+//import type { Provider } from '@supabase/supabase-js';
 import { useState } from 'react';
 
 export const SocialAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSocialLogin = async (provider: Provider) => {
-    const supabase = createClient();
+  const handleSocialLogin = async (provider: string) => {
+    // Auth disabled in debug build
     setIsLoading(true);
 
-    const redirectUrl = new URL('/auth/oauth', window.location.origin);
-
-    redirectUrl.searchParams.set('next', '/');
-
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: redirectUrl.toString(),
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
+      // Simulate social login for debug build
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Redirect to home after simulated auth
+      window.location.href = '/';
     } catch (error: unknown) {
       handleError('Error logging in with social provider', error);
 

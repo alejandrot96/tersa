@@ -1,22 +1,20 @@
-import { createClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
+type MockUser = {
+  id: string;
+  email: string;
+  user_metadata: {
+    name?: string;
+    avatar?: string;
+  };
+};
 
-export const useUser = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await createClient().auth.getUser();
-      if (error) {
-        console.error(error);
-      }
-
-      setUser(data.user);
-    };
-
-    fetchUser();
-  }, []);
-
-  return user;
+export const useUser = (): MockUser | null => {
+  // Debug stub user for UI testing without auth
+  return {
+    id: 'debug-user-id',
+    email: 'debug@example.com',
+    user_metadata: {
+      name: 'Debug User',
+      avatar: '',
+    },
+  };
 };

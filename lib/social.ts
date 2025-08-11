@@ -1,10 +1,11 @@
 import { SiGithub, SiX } from '@icons-pack/react-simple-icons';
-import type { Provider } from '@supabase/supabase-js';
+// Auth disabled in debug build
+// import type { Provider } from '@supabase/supabase-js';
 
 export const socialProviders: {
   name: string;
   icon: typeof SiGithub;
-  id: Provider;
+  id: string;
 }[] = [
   {
     name: 'Github',

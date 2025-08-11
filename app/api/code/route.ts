@@ -1,49 +1,15 @@
-import { getSubscribedUser } from '@/lib/auth';
 import { parseError } from '@/lib/error/parse';
 import { textModels } from '@/lib/models/text';
-import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
-import { trackCreditUsage } from '@/lib/stripe';
 import { streamObject } from 'ai';
 import { z } from 'zod';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-// Create a rate limiter for the chat API
-const rateLimiter = createRateLimiter({
-  limiter: slidingWindow(10, '1 m'),
-  prefix: 'api-code',
-});
+// Rate limiting disabled in debug build
 
 export const POST = async (req: Request) => {
-  let userId: string | undefined;
-
-  try {
-    const user = await getSubscribedUser();
-
-    userId = user.id;
-  } catch (error) {
-    const message = parseError(error);
-
-    return new Response(message, { status: 401 });
-  }
-
-  if (process.env.NODE_ENV === 'production') {
-    // Apply rate limiting
-    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
-    const { success, limit, reset, remaining } = await rateLimiter.limit(ip);
-
-    if (!success) {
-      return new Response('Too many requests', {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-          'X-RateLimit-Reset': reset.toString(),
-        },
-      });
-    }
-  }
+  // Rate limiting disabled for debug build
 
   const context = await req.json();
   const modelId = req.headers.get('tersa-model');
@@ -75,14 +41,8 @@ export const POST = async (req: Request) => {
       '------ User ------',
       context,
     ].join('\n'),
-    onFinish: async ({ usage }) => {
-      await trackCreditUsage({
-        action: 'chat',
-        cost: model.getCost({
-          input: usage.promptTokens,
-          output: usage.completionTokens,
-        }),
-      });
+    onFinish: async () => {
+      // Credits are not tracked in the personal version
     },
   });
 

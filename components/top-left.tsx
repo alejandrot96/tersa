@@ -1,7 +1,5 @@
-import { currentUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { projects } from '@/schema';
-import { eq } from 'drizzle-orm';
 import { ProjectSelector } from './project-selector';
 import { ProjectSettings } from './project-settings';
 
@@ -10,16 +8,9 @@ type TopLeftProps = {
 };
 
 export const TopLeft = async ({ id }: TopLeftProps) => {
-  const user = await currentUser();
-
-  if (!user) {
-    return null;
-  }
-
   const allProjects = await database
     .select()
-    .from(projects)
-    .where(eq(projects.userId, user.id));
+    .from(projects);
 
   if (!allProjects.length) {
     return null;

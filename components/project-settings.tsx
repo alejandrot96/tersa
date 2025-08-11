@@ -12,17 +12,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { handleError } from '@/lib/error/handle';
-import { transcriptionModels } from '@/lib/models/transcription';
-import { visionModels } from '@/lib/models/vision';
 import type { projects } from '@/schema';
-import { SettingsIcon, TrashIcon } from 'lucide-react';
+import { ExpandIcon, SettingsIcon, ShrinkIcon, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
 import { toast } from 'sonner';
-import { ModelSelector } from './nodes/model-selector';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
 
 type ProjectSettingsProps = {
   data: typeof projects.$inferSelect;
@@ -32,10 +30,8 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
   const [open, setOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [name, setName] = useState(data.name);
-  const [transcriptionModel, setTranscriptionModel] = useState(
-    data.transcriptionModel
-  );
-  const [visionModel, setVisionModel] = useState(data.visionModel);
+  const [systemPrompt, setSystemPrompt] = useState(data.systemPrompt || '');
+  const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
   const handleUpdateProject: FormEventHandler<HTMLFormElement> = async (
@@ -52,8 +48,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
 
       const response = await updateProjectAction(data.id, {
         name,
-        transcriptionModel,
-        visionModel,
+        systemPrompt,
       });
 
       if ('error' in response) {
@@ -112,26 +107,39 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="transcriptionModel">Transcription model</Label>
-            <ModelSelector
-              id="transcriptionModel"
-              value={transcriptionModel}
-              options={transcriptionModels}
-              width={462}
-              onChange={setTranscriptionModel}
-              disabled
+            <div className="flex items-center justify-between">
+              <Label htmlFor="systemPrompt">System Prompt</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="h-8 px-2"
+              >
+                {isExpanded ? (
+                  <>
+                    <ShrinkIcon size={14} />
+                    <span className="ml-1">Collapse</span>
+                  </>
+                ) : (
+                  <>
+                    <ExpandIcon size={14} />
+                    <span className="ml-1">Expand</span>
+                  </>
+                )}
+              </Button>
+            </div>
+            <Textarea
+              id="systemPrompt"
+              placeholder="You are a helpful assistant that synthesizes content based on the user's prompts..."
+              value={systemPrompt}
+              onChange={({ target }) => setSystemPrompt(target.value)}
+              rows={isExpanded ? 12 : 6}
+              className={isExpanded ? "resize-y min-h-[200px]" : "resize-none"}
             />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="visionModel">Vision model</Label>
-            <ModelSelector
-              id="visionModel"
-              value={visionModel}
-              options={visionModels}
-              onChange={setVisionModel}
-              width={462}
-              disabled
-            />
+            <p className="text-xs text-muted-foreground">
+              This prompt will be used for all text generation nodes in this project. Leave empty to use the default prompt.
+            </p>
           </div>
           <Button type="submit" disabled={isUpdating || !name.trim()}>
             Update

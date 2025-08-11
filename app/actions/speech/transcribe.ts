@@ -1,6 +1,6 @@
 'use server';
 
-import { getSubscribedUser } from '@/lib/auth';
+// import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { transcriptionModels } from '@/lib/models/transcription';
@@ -20,7 +20,8 @@ export const transcribeAction = async (
     }
 > => {
   try {
-    await getSubscribedUser();
+    // Auth disabled in debug
+    // await getSubscribedUser();
 
     const project = await database
       .select({
@@ -41,9 +42,21 @@ export const transcribeAction = async (
       throw new Error('Model not found');
     }
 
+    // For data URLs, we need to convert them to a format the transcription model can handle
+    let audioInput: URL | Uint8Array;
+    
+    if (url.startsWith('data:')) {
+      // Convert data URL to Uint8Array for transcription
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      audioInput = new Uint8Array(arrayBuffer);
+    } else {
+      audioInput = new URL(url);
+    }
+
     const transcript = await transcribe({
       model: model.model,
-      audio: new URL(url),
+      audio: audioInput,
     });
 
     return {

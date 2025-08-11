@@ -17,7 +17,7 @@ Visualize your AI workflows. Tersa is an open source canvas for building AI work
 
 - [Next.js 15](https://nextjs.org/) with App Router and Turbopack
 - [React 19](https://react.dev/)
-- [Supabase](https://supabase.com/) for authentication and data storage
+- [Supabase](https://supabase.com/) for authentication and data storage (disabled in debug mode)
 - [Vercel AI SDK](https://sdk.vercel.ai/) for AI model integration
 - [ReactFlow](https://reactflow.dev/) for the visual canvas
 - [TipTap](https://tiptap.dev/) for rich text editing
@@ -33,7 +33,7 @@ Visualize your AI workflows. Tersa is an open source canvas for building AI work
 - PNPM package manager
 - Supabase account and project
 - [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) installed
-- [Stripe CLI](https://docs.stripe.com/stripe-cli) installed
+- [Stripe CLI](https://docs.stripe.com/stripe-cli) installed (not required in debug mode)
 
 ### Installation
 
@@ -48,7 +48,7 @@ Visualize your AI workflows. Tersa is an open source canvas for building AI work
    pnpm install
    ```
 
-3. Create a `.env.local` file in the root directory with your environment variables. Check the `lib/env.ts` file for all the variables you need to set.
+3. Create a `.env.local` file in the root directory with your environment variables. For debug mode, only `DATABASE_URL` and any AI provider keys you intend to test are required. See `lib/env.ts` for the full list.
 
 4. Run the development server
    ```sh
@@ -56,6 +56,15 @@ Visualize your AI workflows. Tersa is an open source canvas for building AI work
    ```
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Debug Mode
+
+- Auth disabled: endpoints do not require login.
+- Stripe credits disabled: no credit tracking; costs not enforced.
+- Supabase storage disabled: generated media returned as data URLs.
+- Providers: Luma and Runway disabled unless keys provided; others work if keys exist.
+- Rate limiting disabled in chat API for local testing.
+- Model configuration: Transcription and vision models are locked to OpenAI defaults (not configurable in project settings).
 
 ## Usage
 

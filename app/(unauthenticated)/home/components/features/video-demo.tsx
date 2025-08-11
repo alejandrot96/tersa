@@ -75,16 +75,15 @@ export const VideoDemo = () => (
       createdAt: new Date(),
       id: 'video-demo',
       name: 'Demo Project',
-      userId: 'test',
       transcriptionModel: 'gpt-4o-mini-transcribe',
       visionModel: 'gpt-4.1-nano',
+      systemPrompt: null,
       updatedAt: null,
       image: null,
       content: {
         nodes,
         edges,
       },
-      members: [],
     }}
     canvasProps={{
       panOnScroll: false,

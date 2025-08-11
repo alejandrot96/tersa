@@ -6,9 +6,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { handleError } from '@/lib/error/handle';
-import { createClient } from '@/lib/supabase/client';
+// //import { createClient } from '@/lib/supabase/client';
 import { uploadFile } from '@/lib/upload';
-import type { UserAttributes } from '@supabase/supabase-js';
+// import type { UserAttributes } from '@supabase/supabase-js';
 import { Loader2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { type FormEventHandler, useEffect, useState } from 'react';
@@ -36,26 +36,9 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const client = createClient();
-      const { data } = await client.auth.getUser();
-
-      if (!data.user) {
-        return;
-      }
-
-      if (data.user.user_metadata.name) {
-        setName(data.user.user_metadata.name);
-      }
-
-      if (data.user.email) {
-        setEmail(data.user.email);
-      }
-
-      if (data.user.user_metadata.avatar) {
-        setImage(data.user.user_metadata.avatar);
-      }
+      // Auth disabled in debug; leave fields empty
+      return;
     };
-
     loadProfile();
   }, []);
 
@@ -69,11 +52,8 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
     setIsUpdating(true);
 
     try {
-      const client = createClient();
-
-      const attributes: UserAttributes = {
-        data: {},
-      };
+      // Auth disabled in debug; pretend update succeeded
+      const attributes: any = {};
 
       if (name.trim()) {
         attributes.data = {
@@ -90,12 +70,7 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
         attributes.password = password;
       }
 
-      const response = await client.auth.updateUser(attributes);
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
+      // Simulate success in debug build
       toast.success('Profile updated successfully');
       setOpen(false);
     } catch (error) {
@@ -117,21 +92,8 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
 
       setIsUpdating(true);
 
-      const { url } = await uploadFile(files[0], 'avatars');
-      const client = createClient();
-
-      const response = await client.auth.updateUser({
-        data: {
-          avatar: url,
-        },
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      toast.success('Avatar updated successfully');
-      setImage(url);
+      // Uploads disabled in debug build; throw to show error
+      await uploadFile(files[0], 'avatars');
     } catch (error) {
       handleError('Error updating avatar', error);
     } finally {

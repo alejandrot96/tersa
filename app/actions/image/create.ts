@@ -1,12 +1,10 @@
 'use server';
-
-import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { imageModels } from '@/lib/models/image';
 import { visionModels } from '@/lib/models/vision';
-import { trackCreditUsage } from '@/lib/stripe';
-import { createClient } from '@/lib/supabase/server';
+// import { trackCreditUsage } from '@/lib/stripe';
+//
 import { projects } from '@/schema';
 import type { Edge, Node, Viewport } from '@xyflow/react';
 import {
@@ -95,8 +93,9 @@ export const generateImageAction = async ({
     }
 > => {
   try {
-    const client = await createClient();
-    const user = await getSubscribedUser();
+    // Supabase/auth disabled in debug
+    const user = { id: 'debug-user-id' } as const;
+    const client: any = null;
     const model = imageModels
       .flatMap((m) => m.models)
       .find((m) => m.id === modelId);
@@ -114,14 +113,7 @@ export const generateImageAction = async ({
         size,
       });
 
-      await trackCreditUsage({
-        action: 'generate_image',
-        cost: model.getCost({
-          ...generatedImageResponse.usage,
-          size,
-        }),
-      });
-
+      // Credits disabled in debug
       image = generatedImageResponse.image;
     } else {
       const generatedImageResponse = await generateImage({
@@ -138,12 +130,7 @@ export const generateImageAction = async ({
         size: size as never,
       });
 
-      await trackCreditUsage({
-        action: 'generate_image',
-        cost: model.getCost({
-          size,
-        }),
-      });
+      // Credits disabled in debug
 
       image = generatedImageResponse.image;
     }
@@ -160,24 +147,8 @@ export const generateImageAction = async ({
       type: image.mimeType,
     });
 
-    const blob = await client.storage
-      .from('files')
-      .upload(`${user.id}/${name}`, file, {
-        contentType: file.type,
-      });
-
-    if (blob.error) {
-      throw new Error(blob.error.message);
-    }
-
-    const { data: downloadUrl } = client.storage
-      .from('files')
-      .getPublicUrl(blob.data.path);
-
-    const url =
-      process.env.NODE_ENV === 'production'
-        ? downloadUrl.publicUrl
-        : `data:${image.mimeType};base64,${Buffer.from(image.uint8Array).toString('base64')}`;
+    // Storage disabled in debug; inline data URL
+    const url = `data:${image.mimeType};base64,${Buffer.from(image.uint8Array).toString('base64')}`;
 
     const allProjects = await database
       .select()
@@ -238,7 +209,7 @@ export const generateImageAction = async ({
       ...(existingNode.data ?? {}),
       updatedAt: new Date().toISOString(),
       generated: {
-        url: downloadUrl.publicUrl,
+        url,
         type: image.mimeType,
       },
       description,

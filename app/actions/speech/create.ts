@@ -1,16 +1,13 @@
 'use server';
-
-import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { speechModels } from '@/lib/models/speech';
-import { trackCreditUsage } from '@/lib/stripe';
-import { createClient } from '@/lib/supabase/server';
+// import { trackCreditUsage } from '@/lib/stripe';
+//
 import { projects } from '@/schema';
 import type { Edge, Node, Viewport } from '@xyflow/react';
 import { experimental_generateSpeech as generateSpeech } from 'ai';
 import { eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
 
 type GenerateSpeechActionProps = {
   text: string;
@@ -37,8 +34,9 @@ export const generateSpeechAction = async ({
     }
 > => {
   try {
-    const client = await createClient();
-    const user = await getSubscribedUser();
+    // Supabase/auth disabled in debug
+    const user = { id: 'debug-user-id' } as const;
+    const client: any = null;
 
     const model = speechModels
       .flatMap((m) => m.models)
@@ -56,24 +54,10 @@ export const generateSpeechAction = async ({
       voice,
     });
 
-    await trackCreditUsage({
-      action: 'generate_speech',
-      cost: model.getCost(text.length),
-    });
+    // Credits disabled in debug
 
-    const blob = await client.storage
-      .from('files')
-      .upload(`${user.id}/${nanoid()}.mp3`, new Blob([audio.uint8Array]), {
-        contentType: audio.mimeType,
-      });
-
-    if (blob.error) {
-      throw new Error(blob.error.message);
-    }
-
-    const { data: downloadUrl } = client.storage
-      .from('files')
-      .getPublicUrl(blob.data.path);
+    // Storage disabled in debug; inline data URL
+    const url = `data:${audio.mimeType};base64,${Buffer.from(audio.uint8Array).toString('base64')}`;
 
     const allProjects = await database
       .select()
@@ -101,7 +85,7 @@ export const generateSpeechAction = async ({
       ...(existingNode.data ?? {}),
       updatedAt: new Date().toISOString(),
       generated: {
-        url: downloadUrl.publicUrl,
+        url,
         type: audio.mimeType,
       },
     };

@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { env } from '@/lib/env';
 import { handleError } from '@/lib/error/handle';
-import { createClient } from '@/lib/supabase/client';
+//import { createClient } from '@/lib/supabase/client';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
@@ -22,26 +22,13 @@ export const SignUpForm = () => {
     event
   ) => {
     event.preventDefault();
-    const supabase = createClient();
+    // Auth disabled in debug build
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: new URL(
-            '/auth/confirm',
-            window.location.origin
-          ).toString(),
-          captchaToken,
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
+      // Simulate sign up for debug build
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       router.push('/auth/sign-up-success');
     } catch (error: unknown) {
       handleError('Error signing up with email', error);
@@ -83,7 +70,7 @@ export const SignUpForm = () => {
         </div>
       </form>
       <div className="mt-4">
-        {process.env.NODE_ENV === 'production' ? (
+        {process.env.NODE_ENV === 'production' && env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
           <Turnstile
             siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             onSuccess={setCaptchaToken}

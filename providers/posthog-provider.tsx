@@ -13,14 +13,21 @@ type PostHogProviderProps = {
 
 export const PostHogProvider = ({ children }: PostHogProviderProps) => {
   useEffect(() => {
-    posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
-      api_host: '/ingest',
-      ui_host: 'https://us.posthog.com',
-      capture_pageview: false, // We capture pageviews manually
-      capture_pageleave: true, // Enable pageleave capture
-      debug: process.env.NODE_ENV === 'development',
-    });
+    // PostHog disabled in debug build
+    if (env.NEXT_PUBLIC_POSTHOG_KEY) {
+      posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
+        api_host: '/ingest',
+        ui_host: 'https://us.posthog.com',
+        capture_pageview: false, // We capture pageviews manually
+        capture_pageleave: true, // Enable pageleave capture
+        debug: process.env.NODE_ENV === 'development',
+      });
+    }
   }, []);
+
+  if (!env.NEXT_PUBLIC_POSTHOG_KEY) {
+    return children;
+  }
 
   return (
     <PHProvider client={posthog}>

@@ -1,11 +1,9 @@
 'use server';
-
-import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { imageModels } from '@/lib/models/image';
-import { trackCreditUsage } from '@/lib/stripe';
-import { createClient } from '@/lib/supabase/server';
+// import { trackCreditUsage } from '@/lib/stripe';
+//
 import { projects } from '@/schema';
 import type { Edge, Node, Viewport } from '@xyflow/react';
 import { eq } from 'drizzle-orm';
@@ -40,8 +38,9 @@ export const editImageAction = async ({
     }
 > => {
   try {
-    const client = await createClient();
-    const user = await getSubscribedUser();
+    // Supabase/auth disabled in debug
+    const user = { id: 'debug-user-id' } as const;
+    const client: any = null;
     const openai = new OpenAI();
 
     const model = imageModels
@@ -88,15 +87,7 @@ export const editImageAction = async ({
       throw new Error('No usage found');
     }
 
-    await trackCreditUsage({
-      action: 'edit_image',
-      cost: model.getCost({
-        textInput: response.usage.input_tokens_details.text_tokens,
-        imageInput: response.usage.input_tokens_details.image_tokens,
-        output: response.usage.output_tokens,
-        size,
-      }),
-    });
+    // Credits disabled in debug
 
     const json = response.data?.at(0)?.b64_json;
 
@@ -107,19 +98,8 @@ export const editImageAction = async ({
     const bytes = Buffer.from(json, 'base64');
     const contentType = 'image/png';
 
-    const blob = await client.storage
-      .from('files')
-      .upload(`${user.id}/${nanoid()}`, bytes, {
-        contentType,
-      });
-
-    if (blob.error) {
-      throw new Error(blob.error.message);
-    }
-
-    const { data: downloadUrl } = client.storage
-      .from('files')
-      .getPublicUrl(blob.data.path);
+    // Storage disabled in debug; inline data URL
+    const url = `data:${contentType};base64,${bytes.toString('base64')}`;
 
     const allProjects = await database
       .select()
@@ -147,7 +127,7 @@ export const editImageAction = async ({
       ...(existingNode.data ?? {}),
       updatedAt: new Date().toISOString(),
       generated: {
-        url: downloadUrl.publicUrl,
+        url,
         type: contentType,
       },
       description: instructions ?? defaultPrompt,

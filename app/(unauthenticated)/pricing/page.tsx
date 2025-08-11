@@ -15,10 +15,15 @@ const PricingPage = async () => {
   if (user) {
     const profile = await currentUserProfile();
 
-    if (profile) {
-      if (profile.productId === env.STRIPE_HOBBY_PRODUCT_ID) {
+    if (profile && typeof profile === 'object' && 'productId' in profile) {
+      const typedProfile = profile as { productId: string };
+      // Stripe env vars disabled in debug build
+      const stripeHobbyProductId = process.env.STRIPE_HOBBY_PRODUCT_ID;
+      const stripeProProductId = process.env.STRIPE_PRO_PRODUCT_ID;
+      
+      if (stripeHobbyProductId && typedProfile.productId === stripeHobbyProductId) {
         currentPlan = 'hobby';
-      } else if (profile.productId === env.STRIPE_PRO_PRODUCT_ID) {
+      } else if (stripeProProductId && typedProfile.productId === stripeProProductId) {
         currentPlan = 'pro';
       }
     }

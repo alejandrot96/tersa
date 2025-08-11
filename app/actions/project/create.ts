@@ -1,6 +1,6 @@
 'use server';
 
-import { currentUser } from '@/lib/auth';
+import { nanoid } from 'nanoid';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { transcriptionModels } from '@/lib/models/transcription';
@@ -34,17 +34,11 @@ export const createProjectAction = async (
     }
 > => {
   try {
-    const user = await currentUser();
-
-    if (!user) {
-      throw new Error('You need to be logged in to create a project!');
-    }
-
     const project = await database
       .insert(projects)
       .values({
+        id: nanoid(),
         name,
-        userId: user.id,
         transcriptionModel: defaultTranscriptionModel.id,
         visionModel: defaultVisionModel.id,
       })
