@@ -75,6 +75,19 @@ Visualize your AI workflows. Tersa is an open source canvas for building AI work
 5. Configure node settings as needed
 6. Run your workflow to process data through the AI models
 
+## Keyboard Shortcuts
+
+Boost your productivity with these keyboard shortcuts:
+
+- **`Cmd+A`** (Ctrl+A): Select all nodes
+- **`Cmd+D`** (Ctrl+D): Duplicate selected nodes  
+- **`Cmd+C`** (Ctrl+C): Copy selected nodes
+- **`Cmd+V`** (Ctrl+V): Paste nodes
+- **`Cmd+Enter`** (Ctrl+Enter): **Generate content on all transform nodes**
+- **`Backspace`/`Delete`**: Remove selected nodes or connections
+
+The **`Cmd+Enter`** shortcut is particularly powerful - it triggers content generation on all transform nodes in your workflow simultaneously, perfect for processing complex multi-step workflows.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

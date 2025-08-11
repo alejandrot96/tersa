@@ -70,9 +70,28 @@ Primary tables in Supabase:
 - `project`: Stores workflow projects with their nodes and edges
 - `profile`: User profile data with subscription information
 
+## Keyboard Shortcuts
+
+The canvas supports several keyboard shortcuts for improved workflow efficiency:
+
+- **`Cmd+A` (Ctrl+A on Windows/Linux)**: Select all nodes
+- **`Cmd+D` (Ctrl+D on Windows/Linux)**: Duplicate selected nodes
+- **`Cmd+C` (Ctrl+C on Windows/Linux)**: Copy selected nodes
+- **`Cmd+V` (Ctrl+V on Windows/Linux)**: Paste copied nodes
+- **`Cmd+Enter` (Ctrl+Enter on Windows/Linux)**: Generate content on all transform nodes
+- **`Backspace` / `Delete`**: Delete selected nodes or edges
+
+### Generate All Shortcut
+
+The `Cmd+Enter` shortcut is particularly useful for triggering content generation across multiple nodes simultaneously:
+- Only affects transform nodes (nodes with `data.source === 'transform'`)
+- Primitive nodes (input nodes) are not affected
+- Uses a custom DOM event system for clean node communication
+- Includes analytics tracking for usage insights
+
 ## Key Files
 
-- `components/canvas/canvas.tsx`: Main canvas implementation
+- `components/canvas/canvas.tsx`: Main canvas implementation with keyboard shortcuts
 - `components/nodes/`: Node implementations for different content types
 - `providers/project.tsx`: Project context provider
 - `lib/database.ts`: Database connection and utilities
