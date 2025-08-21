@@ -80,7 +80,7 @@ export const editImageAction = async ({
       prompt,
       user: user.id,
       size: size as never | undefined,
-      quality: 'high',
+      ...(model.providerOptions?.openai || { quality: 'high' }),
     });
 
     if (!response.usage) {
@@ -153,8 +153,15 @@ export const editImageAction = async ({
       nodeData: newData,
     };
   } catch (error) {
-    const message = parseError(error);
-
+    // Prevent base64 data from leaking into error messages
+    let safeError = error;
+    if (error instanceof Error && error.message.includes('base64') && error.message.length > 500) {
+      safeError = new Error('Image editing failed');
+    } else if (typeof error === 'string' && error.includes('base64') && error.length > 500) {
+      safeError = 'Image editing failed';
+    }
+    
+    const message = parseError(safeError);
     return { error: message };
   }
 };

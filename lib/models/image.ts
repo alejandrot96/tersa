@@ -1,8 +1,7 @@
-import { bedrock } from '@ai-sdk/amazon-bedrock';
+import { google } from '@ai-sdk/google';
 import { openai } from '@ai-sdk/openai';
-import { xai } from '@ai-sdk/xai';
 import type { ImageModel } from 'ai';
-import { AmazonIcon, OpenAiIcon, XaiIcon } from '../icons';
+import { GoogleIcon, OpenAiIcon } from '../icons';
 
 const million = 1000000;
 
@@ -25,104 +24,18 @@ export const imageModels: {
     supportsEdit?: boolean;
     disabled?: boolean;
     providerOptions?: Record<string, Record<string, string>>;
+    qualityOptions?: string[];
     priceIndicator?: 'lowest' | 'low' | 'high' | 'highest';
     default?: boolean;
   }[];
 }[] = [
   {
-    label: 'xAI',
-    models: [
-      {
-        icon: XaiIcon,
-        id: 'xai-grok-2-image',
-        label: 'Grok',
-        model: xai.image('grok-2-image'),
-
-        // xAI does not support size or quality
-        // size: '1024x1024',
-        // providerOptions: {},
-
-        // https://docs.x.ai/docs/models#models-and-pricing
-        getCost: () => 0.07,
-      },
-    ],
-  },
-  {
     label: 'OpenAI',
     models: [
       {
         icon: OpenAiIcon,
-        id: 'openai-dall-e-3',
-        label: 'DALL-E 3',
-        model: openai.image('dall-e-3'),
-        sizes: ['1024x1024', '1024x1792', '1792x1024'],
-        providerOptions: {
-          openai: {
-            quality: 'hd',
-          },
-        },
-
-        // https://platform.openai.com/docs/pricing#image-generation
-        getCost: (props) => {
-          if (!props) {
-            throw new Error('Props are required');
-          }
-
-          if (!props.size) {
-            throw new Error('Size is required');
-          }
-
-          if (props.size === '1024x1024') {
-            return 0.08;
-          }
-
-          if (props.size === '1024x1792' || props.size === '1792x1024') {
-            return 0.12;
-          }
-
-          throw new Error('Size is not supported');
-        },
-      },
-      {
-        icon: OpenAiIcon,
-        id: 'openai-dall-e-2',
-        label: 'DALL-E 2',
-        model: openai.image('dall-e-2'),
-        sizes: ['1024x1024', '512x512', '256x256'],
-        priceIndicator: 'low',
-        providerOptions: {
-          openai: {
-            quality: 'standard',
-          },
-        },
-
-        // https://platform.openai.com/docs/pricing#image-generation
-        getCost: (props) => {
-          if (!props) {
-            throw new Error('Props are required');
-          }
-
-          const { size } = props;
-
-          if (size === '1024x1024') {
-            return 0.02;
-          }
-
-          if (size === '512x512') {
-            return 0.018;
-          }
-
-          if (size === '256x256') {
-            return 0.016;
-          }
-
-          throw new Error('Size is not supported');
-        },
-      },
-      {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-image-1',
-        label: 'GPT Image 1',
+        id: 'openai-gpt-image-1-high',
+        label: 'GPT Image 1 High',
         model: openai.image('gpt-image-1'),
         supportsEdit: true,
         sizes: ['1024x1024', '1024x1536', '1536x1024'],
@@ -130,8 +43,11 @@ export const imageModels: {
         providerOptions: {
           openai: {
             quality: 'high',
+            output_format: 'jpeg',
+            output_compression: 80,
           },
         },
+        priceIndicator: 'high',
 
         // Input (Text): https://platform.openai.com/docs/pricing#latest-models
         // Input (Image): https://platform.openai.com/docs/pricing#text-generation
@@ -171,43 +87,112 @@ export const imageModels: {
           return textInputCost + imageInputCost + outputCost;
         },
       },
-    ],
-  },
-  {
-    label: 'Amazon Bedrock',
-    models: [
       {
-        icon: AmazonIcon,
-        id: 'amazon-nova-canvas-v1',
-        label: 'Nova Canvas',
-        model: bedrock.image('amazon.nova-canvas-v1:0'),
-
-        // Each side must be between 320-4096 pixels, inclusive.
-        sizes: ['1024x1024', '2048x2048'],
-
+        icon: OpenAiIcon,
+        id: 'openai-gpt-image-1-standard',
+        label: 'GPT Image 1 Standard',
+        model: openai.image('gpt-image-1'),
+        supportsEdit: true,
+        sizes: ['1024x1024', '1024x1536', '1536x1024'],
         providerOptions: {
-          bedrock: {
-            quality: 'premium',
+          openai: {
+            quality: 'standard',
+            output_format: 'jpeg',
+            output_compression: 80,
           },
         },
+        priceIndicator: 'low',
 
-        // https://aws.amazon.com/bedrock/pricing/
+        // Input (Text): https://platform.openai.com/docs/pricing#latest-models
+        // Input (Image): https://platform.openai.com/docs/pricing#text-generation
+        // Output: https://platform.openai.com/docs/pricing#image-generation
         getCost: (props) => {
+          const priceMap: Record<ImageSize, number> = {
+            '1024x1024': 0.125,
+            '1024x1536': 0.1875,
+            '1536x1024': 0.1875,
+          };
+
           if (!props) {
             throw new Error('Props are required');
           }
 
-          const { size } = props;
-
-          if (size === '1024x1024') {
-            return 0.06;
+          if (typeof props.size !== 'string') {
+            throw new Error('Size is required');
           }
 
-          if (size === '2048x2048') {
-            return 0.08;
+          if (typeof props.output !== 'number') {
+            throw new Error('Output is required');
           }
 
-          throw new Error('Size is not supported');
+          if (typeof props.textInput !== 'number') {
+            throw new Error('Text input is required');
+          }
+
+          if (typeof props.imageInput !== 'number') {
+            throw new Error('Image input is required');
+          }
+
+          const { textInput, imageInput, output, size } = props;
+          const textInputCost = textInput ? (textInput / million) * 5 : 0;
+          const imageInputCost = imageInput ? (imageInput / million) * 10 : 0;
+          const outputCost = (output / million) * priceMap[size as ImageSize];
+
+          return textInputCost + imageInputCost + outputCost;
+        },
+      },
+      {
+        icon: OpenAiIcon,
+        id: 'openai-gpt-image-1-low',
+        label: 'GPT Image 1 Low',
+        model: openai.image('gpt-image-1'),
+        supportsEdit: true,
+        sizes: ['1024x1024', '1024x1536', '1536x1024'],
+        providerOptions: {
+          openai: {
+            quality: 'low',
+            output_format: 'jpeg',
+            output_compression: 80,
+          },
+        },
+        priceIndicator: 'lowest',
+
+        // Input (Text): https://platform.openai.com/docs/pricing#latest-models
+        // Input (Image): https://platform.openai.com/docs/pricing#text-generation
+        // Output: https://platform.openai.com/docs/pricing#image-generation
+        getCost: (props) => {
+          const priceMap: Record<ImageSize, number> = {
+            '1024x1024': 0.0835,
+            '1024x1536': 0.125,
+            '1536x1024': 0.125,
+          };
+
+          if (!props) {
+            throw new Error('Props are required');
+          }
+
+          if (typeof props.size !== 'string') {
+            throw new Error('Size is required');
+          }
+
+          if (typeof props.output !== 'number') {
+            throw new Error('Output is required');
+          }
+
+          if (typeof props.textInput !== 'number') {
+            throw new Error('Text input is required');
+          }
+
+          if (typeof props.imageInput !== 'number') {
+            throw new Error('Image input is required');
+          }
+
+          const { textInput, imageInput, output, size } = props;
+          const textInputCost = textInput ? (textInput / million) * 5 : 0;
+          const imageInputCost = imageInput ? (imageInput / million) * 10 : 0;
+          const outputCost = (output / million) * priceMap[size as ImageSize];
+
+          return textInputCost + imageInputCost + outputCost;
         },
       },
     ],
@@ -329,318 +314,184 @@ export const imageModels: {
   //     },
   //   ],
   // },
-  // {
-  //   label: 'Google Vertex',
-  //   models: [
-  //     {
-  //       icon: GoogleIcon,
-  //       id: 'imagen-3.0-generate-001',
-  //       label: 'Imagen 3.0',
-  //       model: googlevertex.image('imagen-3.0-generate-001'),
-  //     },
-  //     {
-  //       icon: GoogleIcon,
-  //       id: 'imagen-3.0-fast-generate-001',
-  //       label: 'Imagen 3.0 Fast',
-  //       model: googlevertex.image('imagen-3.0-fast-generate-001'),
-  //     },
-  //   ],
-  // },
-  // {
-  //   label: 'Fireworks',
-  //   models: [
-  //     {
-  //       icon: FireworksIcon,
-  //       id: 'accounts/fireworks/models/flux-1-dev-fp8',
-  //       label: 'Flux 1 Dev FP8',
-  //       model: fireworks.image('accounts/fireworks/models/flux-1-dev-fp8'),
-  //     },
-  //     {
-  //       icon: FireworksIcon,
-  //       id: 'accounts/fireworks/models/flux-1-schnell-fp8',
-  //       label: 'Flux 1 Schnell FP8',
-  //       model: fireworks.image('accounts/fireworks/models/flux-1-schnell-fp8'),
-  //     },
-  //     {
-  //       icon: FireworksIcon,
-  //       id: 'accounts/fireworks/models/playground-v2-5-1024px-aesthetic',
-  //       label: 'Playground v2.5',
-  //       model: fireworks.image(
-  //         'accounts/fireworks/models/playground-v2-5-1024px-aesthetic'
-  //       ),
-  //     },
-  //     {
-  //       icon: FireworksIcon,
-  //       id: 'accounts/fireworks/models/japanese-stable-diffusion-xl',
-  //       label: 'Japanese SDXL',
-  //       model: fireworks.image(
-  //         'accounts/fireworks/models/japanese-stable-diffusion-xl'
-  //       ),
-  //     },
-  //     {
-  //       icon: FireworksIcon,
-  //       id: 'accounts/fireworks/models/playground-v2-1024px-aesthetic',
-  //       label: 'Playground v2',
-  //       model: fireworks.image(
-  //         'accounts/fireworks/models/playground-v2-1024px-aesthetic'
-  //       ),
-  //     },
-  //     {
-  //       icon: FireworksIcon,
-  //       id: 'accounts/fireworks/models/SSD-1B',
-  //       label: 'SSD-1B',
-  //       model: fireworks.image('accounts/fireworks/models/SSD-1B'),
-  //     },
-  //     {
-  //       icon: FireworksIcon,
-  //       id: 'accounts/fireworks/models/stable-diffusion-xl-1024-v1-0',
-  //       label: 'SDXL 1.0',
-  //       model: fireworks.image(
-  //         'accounts/fireworks/models/stable-diffusion-xl-1024-v1-0'
-  //       ),
-  //     },
-  //   ],
-  // },
-  // {
-  //   label: 'Luma',
-  //   models: [
-  //     {
-  //       icon: LumaIcon,
-  //       id: 'photon-1',
-  //       label: 'Photon 1',
-  //       model: luma.image('photon-1'),
+  {
+    label: 'Google',
+    models: [
+      {
+        icon: GoogleIcon,
+        id: 'google-imagen-3.0-generate-002',
+        label: 'Imagen 3.0',
+        model: google.image('imagen-3.0-generate-002'),
+        sizes: ['1024x1024', '1024x1365', '1365x1024', '1536x1024', '1024x1536'],
+        providerOptions: {
+          google: {
+            output_format: 'jpeg',
+            output_compression: 80,
+          },
+        },
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
 
-  //       getCost: (width: number, height: number) => {
-  //         const pixels = width * height;
+          const { size } = props;
 
-  //         return (pixels / million) * 0.0073;
-  //       },
-  //     },
-  //     {
-  //       icon: LumaIcon,
-  //       id: 'photon-flash-1',
-  //       label: 'Photon Flash 1',
-  //       model: luma.image('photon-flash-1'),
+          if (!size) {
+            throw new Error('Size is required');
+          }
 
-  //       getCost: (width: number, height: number) => {
-  //         const pixels = width * height;
+          // Google Imagen 3.0 pricing (estimated based on typical rates)
+          const priceMap: Record<ImageSize, number> = {
+            '1024x1024': 0.08,
+            '1024x1365': 0.10,
+            '1365x1024': 0.10,
+            '1024x1536': 0.12,
+            '1536x1024': 0.12,
+          };
 
-  //         return (pixels / million) * 0.0019;
-  //       },
-  //     },
-  //   ],
-  // },
-  // {
-  //   label: 'Together.ai',
-  //   models: [
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-dev',
-  //       label: 'FLUX.1 Dev',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-dev'),
-  //       size: '1024x1024',
+          if (typeof size !== 'string') {
+            throw new Error('Size is required');
+          }
 
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
+          if (!priceMap[size as ImageSize]) {
+            throw new Error('Size is not supported');
+          }
 
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.025;
+          return priceMap[size as ImageSize];
+        },
+      },
+      {
+        icon: GoogleIcon,
+        id: 'google-imagen-4.0-generate-001',
+        label: 'Imagen 4.0',
+        model: google.image('imagen-4.0-generate-001'),
+        sizes: ['1024x1024', '1024x1365', '1365x1024', '1536x1024', '1024x1536'],
+        providerOptions: {
+          google: {
+            output_format: 'jpeg',
+            output_compression: 80,
+          },
+        },
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
 
-  //         // Outcome: ~0.026
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-dev-lora',
-  //       label: 'FLUX.1 Dev Lora',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-dev-lora'),
-  //       size: '1024x1024',
+          const { size } = props;
 
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
+          if (!size) {
+            throw new Error('Size is required');
+          }
 
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.035;
+          // Google Imagen 4.0 pricing (estimated based on typical rates)
+          const priceMap: Record<ImageSize, number> = {
+            '1024x1024': 0.08,
+            '1024x1365': 0.10,
+            '1365x1024': 0.10,
+            '1024x1536': 0.12,
+            '1536x1024': 0.12,
+          };
 
-  //         // Outcome: ~0.036
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-schnell',
-  //       label: 'FLUX.1 Schnell',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-schnell'),
-  //       size: '1024x1024',
+          if (typeof size !== 'string') {
+            throw new Error('Size is required');
+          }
 
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
+          if (!priceMap[size as ImageSize]) {
+            throw new Error('Size is not supported');
+          }
 
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.0027;
+          return priceMap[size as ImageSize];
+        },
+      },
+      {
+        icon: GoogleIcon,
+        id: 'google-imagen-4.0-fast-generate-001',
+        label: 'Imagen 4.0 Fast',
+        model: google.image('imagen-4.0-fast-generate-001'),
+        sizes: ['1024x1024', '1024x1365', '1365x1024', '1536x1024', '1024x1536'],
+        providerOptions: {
+          google: {
+            output_format: 'jpeg',
+            output_compression: 80,
+          },
+        },
+        priceIndicator: 'low',
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
 
-  //         // Outcome: ~0.0028
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-canny',
-  //       label: 'FLUX.1 Canny',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-canny'),
-  //       size: '1024x1024',
+          const { size } = props;
 
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
+          if (!size) {
+            throw new Error('Size is required');
+          }
 
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.025;
+          // Google Imagen 4.0 Fast pricing (estimated based on typical rates)
+          const priceMap: Record<ImageSize, number> = {
+            '1024x1024': 0.04,
+            '1024x1365': 0.06,
+            '1365x1024': 0.06,
+            '1024x1536': 0.08,
+            '1536x1024': 0.08,
+          };
 
-  //         // Outcome: ~0.026
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-depth',
-  //       label: 'FLUX.1 Depth',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-depth'),
-  //       size: '1024x1024',
+          if (typeof size !== 'string') {
+            throw new Error('Size is required');
+          }
 
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
+          if (!priceMap[size as ImageSize]) {
+            throw new Error('Size is not supported');
+          }
 
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.025;
+          return priceMap[size as ImageSize];
+        },
+      },
+      {
+        icon: GoogleIcon,
+        id: 'google-imagen-4.0-ultra-generate-001',
+        label: 'Imagen 4.0 Ultra',
+        model: google.image('imagen-4.0-ultra-generate-001'),
+        sizes: ['1024x1024', '1024x1365', '1365x1024', '1536x1024', '1024x1536', '2048x2048'],
+        providerOptions: {
+          google: {
+            output_format: 'jpeg',
+            output_compression: 80,
+          },
+        },
+        priceIndicator: 'highest',
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
 
-  //         // Outcome: ~0.026
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-redux',
-  //       label: 'FLUX.1 Redux',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-redux'),
-  //       size: '1024x1024',
+          const { size } = props;
 
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
+          if (!size) {
+            throw new Error('Size is required');
+          }
 
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.025;
+          // Google Imagen 4.0 Ultra pricing (estimated based on typical rates)
+          const priceMap: Record<ImageSize, number> = {
+            '1024x1024': 0.15,
+            '1024x1365': 0.20,
+            '1365x1024': 0.20,
+            '1024x1536': 0.25,
+            '1536x1024': 0.25,
+            '2048x2048': 0.50,
+          };
 
-  //         // Outcome: ~0.026
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1.1-pro',
-  //       label: 'FLUX.1.1 Pro',
-  //       model: togetherai.image('black-forest-labs/FLUX.1.1-pro'),
-  //       size: '1024x1024',
+          if (typeof size !== 'string') {
+            throw new Error('Size is required');
+          }
 
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
+          if (!priceMap[size as ImageSize]) {
+            throw new Error('Size is not supported');
+          }
 
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.04;
-
-  //         // Outcome: ~0.04
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-pro',
-  //       label: 'FLUX.1 Pro',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-pro'),
-  //       size: '1024x1024',
-
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
-
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0.05;
-
-  //         // Outcome: ~0.05
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'together-black-forest-labs/FLUX.1-schnell-Free',
-  //       label: 'FLUX.1 Schnell Free',
-  //       model: togetherai.image('black-forest-labs/FLUX.1-schnell-Free'),
-  //       size: '1024x1024',
-  //       priceIndicator: 'lowest',
-
-  //       // https://www.together.ai/pricing
-  //       getCost: (props) => {
-  //         if (!props) {
-  //           throw new Error('Props are required');
-  //         }
-
-  //         const width = 1024;
-  //         const height = 1024;
-  //         const pixels = width * height;
-  //         const megapixels = pixels / million;
-  //         const pricePerMegapixel = 0;
-
-  //         // Outcome: 0
-  //         return megapixels * pricePerMegapixel;
-  //       },
-  //     },
-  //   ],
-  // },
+          return priceMap[size as ImageSize];
+        },
+      },
+    ],
+  },
 ];

@@ -61,12 +61,15 @@ Tersa is a visual AI workflow builder built with Next.js, React, and Supabase. I
    - Various AI models are integrated via the Vercel AI SDK
    - Model configurations defined in `lib/models/`
    - API routes in `app/api` and server actions in `app/actions` handle AI requests
+   - **Image Models**: Google Imagen 3.0, Imagen 4.0, Imagen 4.0 Fast, Imagen 4.0 Ultra, OpenAI GPT Image 1 (High/Standard/Low quality variants)
+   - **Text Models**: GPT-4.1, GPT-5 Mini, Claude 4, DeepSeek Chat, Gemini 2.5 Flash, Gemini 2.5 Pro, Moonshot AI Kimi K2
+   - All image models output JPEG format with 80% compression by default
    - Transcription models: Currently locked to OpenAI defaults (GPT-4o Mini Transcribe, Whisper 1, GPT-4o Transcribe)
    - Vision models: Currently locked to OpenAI defaults (GPT-4.1 is default, plus various GPT-4o variants)
 
 ## Database Schema
 
-Primary tables in Supabase:
+Primary tables in PostgreSQL/Neon:
 - `project`: Stores workflow projects with their nodes and edges, and custom accent colors
 - `profile`: User profile data with subscription information
 

@@ -100,13 +100,6 @@ const getModelDisabled = (
     return true;
   }
 
-  if (
-    (!plan || plan === 'hobby') &&
-    (model.priceIndicator === 'highest' || model.priceIndicator === 'high')
-  ) {
-    return true;
-  }
-
   return false;
 };
 

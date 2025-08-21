@@ -28,10 +28,12 @@ const generateGptImage1Image = async ({
   instructions,
   prompt,
   size,
+  providerOptions,
 }: {
   instructions?: string;
   prompt: string;
   size?: string;
+  providerOptions?: Record<string, string>;
 }) => {
   const openai = new OpenAI();
   const response = await openai.images.generate({
@@ -47,8 +49,7 @@ const generateGptImage1Image = async ({
     ].join('\n'),
     size: size as never | undefined,
     moderation: 'low',
-    quality: 'high',
-    output_format: 'png',
+    ...providerOptions,
   });
 
   const json = response.data?.at(0)?.b64_json;
@@ -111,6 +112,7 @@ export const generateImageAction = async ({
         instructions,
         prompt,
         size,
+        providerOptions: model.providerOptions?.openai,
       });
 
       // Credits disabled in debug
@@ -128,6 +130,7 @@ export const generateImageAction = async ({
           prompt,
         ].join('\n'),
         size: size as never,
+        ...(model.providerOptions?.google || {}),
       });
 
       // Credits disabled in debug
@@ -235,8 +238,15 @@ export const generateImageAction = async ({
       nodeData: newData,
     };
   } catch (error) {
-    const message = parseError(error);
-
+    // Prevent base64 data from leaking into error messages
+    let safeError = error;
+    if (error instanceof Error && error.message.includes('base64') && error.message.length > 500) {
+      safeError = new Error('Image processing failed');
+    } else if (typeof error === 'string' && error.includes('base64') && error.length > 500) {
+      safeError = 'Image processing failed';
+    }
+    
+    const message = parseError(safeError);
     return { error: message };
   }
 };
