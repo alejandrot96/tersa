@@ -10,7 +10,7 @@ export type ImageSize = `${number}x${number}`;
 export const imageModels: {
   label: string;
   models: {
-    icon: typeof XaiIcon;
+    icon: typeof OpenAiIcon;
     id: string;
     label: string;
     model: ImageModel;
@@ -44,7 +44,7 @@ export const imageModels: {
           openai: {
             quality: 'high',
             output_format: 'jpeg',
-            output_compression: 80,
+            output_compression: '80',
           },
         },
         priceIndicator: 'high',
@@ -98,7 +98,7 @@ export const imageModels: {
           openai: {
             quality: 'standard',
             output_format: 'jpeg',
-            output_compression: 80,
+            output_compression: '80',
           },
         },
         priceIndicator: 'low',
@@ -152,7 +152,7 @@ export const imageModels: {
           openai: {
             quality: 'low',
             output_format: 'jpeg',
-            output_compression: 80,
+            output_compression: '80',
           },
         },
         priceIndicator: 'lowest',
@@ -326,7 +326,7 @@ export const imageModels: {
         providerOptions: {
           google: {
             output_format: 'jpeg',
-            output_compression: 80,
+            output_compression: '80',
           },
         },
         getCost: (props) => {
@@ -369,7 +369,7 @@ export const imageModels: {
         providerOptions: {
           google: {
             output_format: 'jpeg',
-            output_compression: 80,
+            output_compression: '80',
           },
         },
         getCost: (props) => {
@@ -412,7 +412,7 @@ export const imageModels: {
         providerOptions: {
           google: {
             output_format: 'jpeg',
-            output_compression: 80,
+            output_compression: '80',
           },
         },
         priceIndicator: 'low',
@@ -456,7 +456,7 @@ export const imageModels: {
         providerOptions: {
           google: {
             output_format: 'jpeg',
-            output_compression: 80,
+            output_compression: '80',
           },
         },
         priceIndicator: 'highest',

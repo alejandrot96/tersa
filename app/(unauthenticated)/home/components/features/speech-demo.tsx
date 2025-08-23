@@ -65,6 +65,7 @@ export const SpeechDemo = () => (
       createdAt: new Date(),
       id: 'speech-demo',
       name: 'Demo Project',
+      userId: 'demo-user',
       transcriptionModel: 'gpt-4o-mini-transcribe',
       visionModel: 'gpt-4.1-nano',
       systemPrompt: null,

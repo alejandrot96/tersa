@@ -1,8 +1,10 @@
 import { database } from '@/lib/database';
 import { projects } from '@/schema';
+import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { createProjectAction } from './actions/project/create';
+import { auth } from '@clerk/nextjs/server';
 
 export const metadata: Metadata = {
   title: 'Tersa',
@@ -10,10 +12,20 @@ export const metadata: Metadata = {
 };
 
 const Index = async () => {
-  const allProjects = await database.select().from(projects);
+  // Check if user is authenticated
+  const { userId } = await auth();
+  
+  if (!userId) {
+    // User is not authenticated, redirect to login
+    return redirect('/auth/login');
+  }
 
-  if (!allProjects.length) {
-    const newProject = await createProjectAction('Untitled Project');
+  // User is authenticated, get their projects
+  const userProjects = await database.select().from(projects).where(eq(projects.userId, userId));
+
+  if (!userProjects.length) {
+    // Create first project for the user
+    const newProject = await createProjectAction('Untitled Project', userId);
 
     if ('error' in newProject) {
       throw new Error(newProject.error);
@@ -22,7 +34,7 @@ const Index = async () => {
     return redirect(`/projects/${newProject.id}`);
   }
 
-  redirect(`/projects/${allProjects[0].id}`);
+  redirect(`/projects/${userProjects[0].id}`);
 };
 
 export default Index;

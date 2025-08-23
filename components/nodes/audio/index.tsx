@@ -16,6 +16,7 @@ export type AudioNodeProps = {
     updatedAt?: string;
     model?: string;
     voice?: string;
+    voiceStyle?: string;
     transcript?: string;
     instructions?: string;
   };

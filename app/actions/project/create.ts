@@ -24,7 +24,8 @@ if (!defaultVisionModel) {
 }
 
 export const createProjectAction = async (
-  name: string
+  name: string,
+  userId: string
 ): Promise<
   | {
       id: string;
@@ -39,6 +40,7 @@ export const createProjectAction = async (
       .values({
         id: nanoid(),
         name,
+        userId,
         transcriptionModel: defaultTranscriptionModel.id,
         visionModel: defaultVisionModel.id,
       })

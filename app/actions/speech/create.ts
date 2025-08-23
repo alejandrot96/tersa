@@ -16,6 +16,7 @@ type GenerateSpeechActionProps = {
   projectId: string;
   instructions?: string;
   voice?: string;
+  voiceStyle?: string;
 };
 
 export const generateSpeechAction = async ({
@@ -25,6 +26,7 @@ export const generateSpeechAction = async ({
   projectId,
   instructions,
   voice,
+  voiceStyle,
 }: GenerateSpeechActionProps): Promise<
   | {
       nodeData: object;
@@ -46,13 +48,69 @@ export const generateSpeechAction = async ({
       throw new Error('Model not found');
     }
 
-    const { audio } = await generateSpeech({
-      model: model.model,
-      text,
-      outputFormat: 'mp3',
-      instructions,
-      voice,
-    });
+    let audio: { uint8Array: Uint8Array; mediaType: string };
+
+    if (modelId.startsWith('elevenlabs-')) {
+      // Handle ElevenLabs API
+      const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
+      if (!elevenLabsApiKey) {
+        throw new Error('ElevenLabs API key not configured');
+      }
+
+      // Combine text and voice style for ElevenLabs
+      let finalText = text;
+      if (voiceStyle) {
+        finalText = instructions 
+          ? `${text}\n\n[Voice instruction: ${instructions}. Style: ${voiceStyle}]`
+          : `${text}\n\n[Style: ${voiceStyle}]`;
+      } else if (instructions) {
+        finalText = `${text}\n\n[Voice instruction: ${instructions}]`;
+      }
+
+      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + (voice || 'rachel'), {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': elevenLabsApiKey,
+        },
+        body: JSON.stringify({
+          text: finalText,
+          model_id: 'eleven_turbo_v2',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      const audioBuffer = await response.arrayBuffer();
+      audio = {
+        uint8Array: new Uint8Array(audioBuffer),
+        mediaType: 'audio/mpeg',
+      };
+    } else {
+      // Handle OpenAI models
+      let finalInstructions = instructions;
+      if (model.voiceStyle && voiceStyle) {
+        finalInstructions = instructions 
+          ? `${instructions}\n\nVoice style: ${voiceStyle}`
+          : `Voice style: ${voiceStyle}`;
+      }
+
+      const result = await generateSpeech({
+        model: model.model,
+        text,
+        outputFormat: 'mp3',
+        instructions: finalInstructions,
+        voice,
+      });
+      audio = result.audio;
+    }
 
     // Credits disabled in debug
 

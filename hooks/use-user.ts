@@ -1,20 +1,27 @@
-type MockUser = {
+import { useUser as useClerkUser } from '@clerk/nextjs';
+
+type User = {
   id: string;
   email: string;
-  user_metadata: {
-    name?: string;
-    avatar?: string;
-  };
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  imageUrl?: string;
 };
 
-export const useUser = (): MockUser | null => {
-  // Debug stub user for UI testing without auth
+export const useUser = (): User | null => {
+  const { isLoaded, isSignedIn, user } = useClerkUser();
+
+  if (!isLoaded || !isSignedIn || !user) {
+    return null;
+  }
+
   return {
-    id: 'debug-user-id',
-    email: 'debug@example.com',
-    user_metadata: {
-      name: 'Debug User',
-      avatar: '',
-    },
+    id: user.id,
+    email: user.emailAddresses[0]?.emailAddress || '',
+    fullName: user.fullName || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
+    imageUrl: user.imageUrl || '',
   };
 };

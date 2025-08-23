@@ -1,8 +1,6 @@
-import { hume } from '@ai-sdk/hume';
-import { lmnt } from '@ai-sdk/lmnt';
 import { openai } from '@ai-sdk/openai';
 import type { SpeechModel } from 'ai';
-import { HumeIcon, LmntIcon, OpenAiIcon } from '../icons';
+import { ElevenLabsIcon, OpenAiIcon } from '../icons';
 
 const million = 1000000;
 const thousand = 1000;
@@ -17,6 +15,7 @@ export const speechModels: {
     voices: string[];
     getCost: (tokens: number) => number;
     default?: boolean;
+    voiceStyle?: boolean;
   }[];
 }[] = [
   {
@@ -61,91 +60,50 @@ export const speechModels: {
           'shimmer',
         ],
       },
-      // {
-      //   icon: OpenAiIcon,
-      //   id: 'openai-gpt-4o-mini-tts',
-      //   label: 'GPT-4o Mini TTS',
-      //   model: openai.speech('gpt-4o-mini-tts'),
-      //   getCost: (tokens: number) => (tokens / million) * 0.6,
-      // },
-    ],
-  },
-  {
-    label: 'LMNT',
-    models: [
       {
-        icon: LmntIcon,
-        id: 'lmnt-aurora',
-        label: 'Aurora',
-        model: lmnt.speech('aurora'),
-        getCost: (characters: number) => (characters / thousand) * 0.05,
+        icon: OpenAiIcon,
+        id: 'openai-gpt-4o-mini-tts',
+        label: 'GPT-4o Mini TTS',
+        model: openai.speech('gpt-4o-mini-tts'),
+        getCost: (characters: number) => (characters / million) * 60,
+        voiceStyle: true,
         voices: [
-          'amy',
-          'ava',
-          'caleb',
-          'chloe',
-          'dalton',
-          'daniel',
-          'james',
-          'lauren',
-          'lily',
-          'magnus',
-          'miles',
-          'morgan',
-          'nathan',
-          'noah',
-          'oliver',
-          'paige',
-          'sophie',
-          'terrence',
-          'zain',
-          'zeke',
-          'zoe',
-        ],
-      },
-      {
-        icon: LmntIcon,
-        id: 'lmnt-blizzard',
-        label: 'Blizzard',
-        model: lmnt.speech('blizzard'),
-        getCost: (characters: number) => (characters / thousand) * 0.05,
-        voices: [
-          'amy',
-          'ava',
-          'caleb',
-          'chloe',
-          'dalton',
-          'daniel',
-          'james',
-          'lauren',
-          'lily',
-          'magnus',
-          'miles',
-          'morgan',
-          'nathan',
-          'noah',
-          'oliver',
-          'paige',
-          'sophie',
-          'terrence',
-          'zain',
-          'zeke',
-          'zoe',
+          'alloy',
+          'ash',
+          'ballad',
+          'coral',
+          'echo',
+          'fable',
+          'nova',
+          'onyx',
+          'sage',
+          'shimmer',
+          'verse',
         ],
       },
     ],
   },
   {
-    label: 'Hume',
+    label: 'ElevenLabs',
     models: [
       {
-        icon: HumeIcon,
-        id: 'hume-default',
-        label: 'Default',
-        model: hume.speech(),
-        // Creator plan pricing
-        getCost: (characters: number) => (characters / thousand) * 0.2,
-        voices: [],
+        icon: ElevenLabsIcon,
+        id: 'elevenlabs-eleven-turbo-v2',
+        label: 'Eleven Turbo v2',
+        model: {} as SpeechModel, // Custom implementation in speech action
+        getCost: (characters: number) => (characters / thousand) * 0.3,
+        voiceStyle: true,
+        voices: [
+          'rachel',
+          'domi',
+          'bella',
+          'antoni',
+          'elli',
+          'josh',
+          'arnold',
+          'adam',
+          'sam',
+        ],
       },
     ],
   },

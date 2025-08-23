@@ -58,14 +58,16 @@ Tersa is a visual AI workflow builder built with Next.js, React, and Supabase. I
    - Stripe integration for subscription management
 
 5. **AI Model Integration**
-   - Various AI models are integrated via the Vercel AI SDK
+   - Various AI models are integrated via the Vercel AI SDK and custom API implementations
    - Model configurations defined in `lib/models/`
    - API routes in `app/api` and server actions in `app/actions` handle AI requests
    - **Image Models**: Google Imagen 3.0, Imagen 4.0, Imagen 4.0 Fast, Imagen 4.0 Ultra, OpenAI GPT Image 1 (High/Standard/Low quality variants)
    - **Text Models**: GPT-4.1, GPT-5 Mini, Claude 4, DeepSeek Chat, Gemini 2.5 Flash, Gemini 2.5 Pro, Moonshot AI Kimi K2
+   - **Audio Models**: OpenAI TTS-1, TTS-1-HD, GPT-4o Mini TTS (with voice style support), ElevenLabs Eleven Turbo v2 (with voice style support)
    - All image models output JPEG format with 80% compression by default
    - Transcription models: Currently locked to OpenAI defaults (GPT-4o Mini Transcribe, Whisper 1, GPT-4o Transcribe)
    - Vision models: Currently locked to OpenAI defaults (GPT-4.1 is default, plus various GPT-4o variants)
+   - Audio models support voice style instructions for enhanced voice control (GPT-4o Mini TTS and ElevenLabs)
 
 ## Database Schema
 

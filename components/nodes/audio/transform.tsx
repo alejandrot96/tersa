@@ -88,6 +88,7 @@ export const AudioTransform = ({
         model: modelId,
         instructionsLength: data.instructions?.length ?? 0,
         voice: data.voice ?? null,
+        voiceStyleLength: data.voiceStyle?.length ?? 0,
       });
 
       const response = await generateSpeechAction({
@@ -97,6 +98,7 @@ export const AudioTransform = ({
         projectId,
         voice: data.voice,
         instructions,
+        voiceStyle: data.voiceStyle,
       });
 
       if ('error' in response) {
@@ -146,6 +148,19 @@ export const AudioTransform = ({
           key={id}
           className="w-[200px] rounded-full"
           onChange={(value) => updateNodeData(id, { voice: value })}
+        />
+      ),
+    });
+  }
+
+  if (model?.voiceStyle) {
+    toolbar.push({
+      children: (
+        <Textarea
+          value={data.voiceStyle ?? ''}
+          onChange={(e) => updateNodeData(id, { voiceStyle: e.target.value })}
+          placeholder="Describe voice style (e.g., enthusiastic, calm, professional)"
+          className="w-[300px] h-[40px] rounded-full resize-none"
         />
       ),
     });

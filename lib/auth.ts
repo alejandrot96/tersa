@@ -1,19 +1,50 @@
-// Auth disabled for debug
-// import { getCredits } from '@/app/actions/credits/get';
-// import { profile } from '@/schema';
-// import { eq } from 'drizzle-orm';
-// import { database } from './database';
-// import { env } from './env';
-// import { createClient } from './supabase/server';
+import { auth } from '@clerk/nextjs/server';
+import { database } from './database';
 
 export const currentUser = async () => {
-  return null;
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return null;
+    }
+    
+    // In Clerk v6, we need to use a different approach to get user details
+    // For now, return just the user ID
+    return { id: userId };
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    return null;
+  }
 };
 
 export const currentUserProfile = async () => {
-  return null;
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return null;
+    }
+    
+    // In Clerk v6, we need to use a different approach to get user details
+    // For now, return just the user ID
+    return { id: userId };
+  } catch (error) {
+    console.error('Error fetching current user profile:', error);
+    return null;
+  }
 };
 
 export const getSubscribedUser = async () => {
-  throw new Error('Auth is disabled in this debug build.');
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
+    // In Clerk v6, we need to use a different approach to get user details
+    // For now, return just the user ID
+    return { id: userId };
+  } catch (error) {
+    console.error('Error fetching subscribed user:', error);
+    throw new Error('Failed to fetch user data');
+  }
 };

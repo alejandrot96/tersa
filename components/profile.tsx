@@ -6,9 +6,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { handleError } from '@/lib/error/handle';
-// //import { createClient } from '@/lib/supabase/client';
 import { uploadFile } from '@/lib/upload';
-// import type { UserAttributes } from '@supabase/supabase-js';
+import { useUser } from '@/hooks/use-user';
 import { Loader2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { type FormEventHandler, useEffect, useState } from 'react';
@@ -28,6 +27,7 @@ type ProfileProps = {
 };
 
 export const Profile = ({ open, setOpen }: ProfileProps) => {
+  const user = useUser();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [image, setImage] = useState('');
@@ -35,12 +35,12 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    const loadProfile = async () => {
-      // Auth disabled in debug; leave fields empty
-      return;
-    };
-    loadProfile();
-  }, []);
+    if (user) {
+      setName(user.fullName || '');
+      setEmail(user.email || '');
+      setImage(user.imageUrl || '');
+    }
+  }, [user]);
 
   const handleUpdateUser: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -52,27 +52,16 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
     setIsUpdating(true);
 
     try {
-      // Auth disabled in debug; pretend update succeeded
-      const attributes: any = {};
-
-      if (name.trim()) {
-        attributes.data = {
-          ...attributes.data,
-          name,
-        };
-      }
-
-      if (email.trim()) {
-        attributes.email = email;
-      }
-
       if (password.trim()) {
-        attributes.password = password;
+        // Password updates are handled separately in Clerk
+        toast.warning('Password changes are not yet supported');
+        return;
       }
 
-      // Simulate success in debug build
-      toast.success('Profile updated successfully');
-      setOpen(false);
+      // For now, we'll just show a warning since user updates require Clerk integration
+      // In a real implementation, you would use Clerk's user update methods
+      toast.warning('Profile updates require Clerk integration');
+      
     } catch (error) {
       handleError('Error updating profile', error);
     } finally {
@@ -92,8 +81,13 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
 
       setIsUpdating(true);
 
-      // Uploads disabled in debug build; throw to show error
-      await uploadFile(files[0], 'avatars');
+      // Upload avatar
+      const uploaded = await uploadFile(files[0], 'avatars');
+      
+      // For now, just update the local state
+      // In a real implementation, you would update the user avatar in Clerk
+      setImage(uploaded.url);
+      toast.success('Avatar updated successfully');
     } catch (error) {
       handleError('Error updating avatar', error);
     } finally {

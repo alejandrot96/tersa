@@ -56,6 +56,7 @@ export const ImageDemo = () => (
       createdAt: new Date(),
       id: 'image-demo',
       name: 'Demo Project',
+      userId: 'demo-user',
       transcriptionModel: 'gpt-4o-mini-transcribe',
       visionModel: 'gpt-4.1-nano',
       systemPrompt: null,

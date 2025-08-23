@@ -1,6 +1,7 @@
 'use client';
 
 import { createProjectAction } from '@/app/actions/project/create';
+import { useAuth } from '@clerk/nextjs';
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,7 @@ export const ProjectSelector = ({
 }: ProjectSelectorProps) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(currentProject);
+  const { userId } = useAuth();
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -58,7 +60,7 @@ export const ProjectSelector = ({
     setIsCreating(true);
 
     try {
-      const response = await createProjectAction(name.trim());
+      const response = await createProjectAction(name.trim(), userId!);
 
       if ('error' in response) {
         throw new Error(response.error);

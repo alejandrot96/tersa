@@ -6,6 +6,10 @@ export const env = createEnv({
   extends: [vercel()],
   server: {
     DATABASE_URL: z.string().url().min(1),
+    AUTH_DATABASE_URL: z.string().url().min(1).optional(),
+
+    // Clerk
+    CLERK_SECRET_KEY: z.string().min(1),
 
     // AI SDK
     OPENAI_API_KEY: z.string().min(1).optional(),
@@ -27,11 +31,14 @@ export const env = createEnv({
     LUMAAI_API_KEY: z.string().min(1).optional(),
   },
   client: {
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
     NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().url().min(1).optional(),
   },
   runtimeEnv: {
+    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
@@ -44,6 +51,7 @@ export const env = createEnv({
     FAL_API_KEY: process.env.FAL_API_KEY,
     TOGETHER_AI_API_KEY: process.env.TOGETHER_AI_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
+    AUTH_DATABASE_URL: process.env.AUTH_DATABASE_URL,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     MINIMAX_GROUP_ID: process.env.MINIMAX_GROUP_ID,
     MINIMAX_API_KEY: process.env.MINIMAX_API_KEY,

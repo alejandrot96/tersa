@@ -586,6 +586,16 @@ export const HumeIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const ElevenLabsIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <title>ElevenLabs</title>
+    <path
+      d="M7.5 4.5C7.5 2.01472 9.51472 0 12 0C14.4853 0 16.5 2.01472 16.5 4.5V19.5C16.5 21.9853 14.4853 24 12 24C9.51472 24 7.5 21.9853 7.5 19.5V4.5ZM4.5 7.5C2.01472 7.5 0 9.51472 0 12C0 14.4853 2.01472 16.5 4.5 16.5H19.5C21.9853 16.5 24 14.4853 24 12C24 9.51472 21.9853 7.5 19.5 7.5H4.5Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 export const LmntIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 250.8 248.87"
